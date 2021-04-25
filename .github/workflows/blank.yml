@@ -26,4 +26,7 @@ jobs:
       - name: install hexo
         run: npm install hexo -g  
       - name: Deploy
-        run: hexo clean && hexo deploy
+        run: |
+        git config user.name 'jack'
+        git config user.email 'jack@qq.com'
+        hexo clean && hexo deploy
