@@ -1,11 +1,12 @@
 ---
 title: "认识PHP zval结构体"
 date: "2019-07-11"
-categories:
+categories: php
+tags:
  - php
 ---
 
-#zval结构体
+# zval结构体
 ```c
 struct _zval_struct {
 	zend_value        value;			/* value */
@@ -35,7 +36,7 @@ struct _zval_struct {
 	} u2;
 };
 ```
-#zend_value
+# zend_value
 ```c
 typedef union _zend_value {
 	zend_long         lval;				/* long value */
@@ -58,7 +59,7 @@ typedef union _zend_value {
 } zend_value;
 ```
 
-#zend_string
+# zend_string 字符串
 ```c
 struct _zend_string {
 	zend_refcounted_h gc;
@@ -67,10 +68,10 @@ struct _zend_string {
 	char              val[1];
 };
 ```
-##初始化
+## 初始化
 zend_string *zend_string_init(const char *str, size_t len, bool persistent)
 
 zend_string_init("hello world",sizeof("hello world")-1,0)
 
 
-#zend
+# zend_array 数组
