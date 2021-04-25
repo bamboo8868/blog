@@ -32,7 +32,7 @@ struct _zval_struct {
 	} u2;
 };
 ```
-
+#zend_string
 ```c
 struct _zend_string {
 	zend_refcounted_h gc;
@@ -41,3 +41,5 @@ struct _zend_string {
 	char              val[1];
 };
 ```
+##初始化
+zend_string *zend_string_init(const char *str, size_t len, bool persistent)
