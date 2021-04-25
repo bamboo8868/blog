@@ -1,7 +1,8 @@
 ---
 title: "认识PHP zval结构体"
 date: "2019-07-11"
-categories: php
+categories: 
+ - php
 tags:
  - php
 ---

@@ -99,6 +99,11 @@ ignore:
 ## Themes: https://hexo.io/themes/
 theme: next
 
+menu:
+  home: /
+  archives: /archives
+  categories: /categories
+  tags: /tags
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
