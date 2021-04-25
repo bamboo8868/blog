@@ -23,5 +23,7 @@ jobs:
             ${{ runner.OS }}-npm-cache
       - name: Install Dependencies
         run: npm install
+      - name: install hexo
+        run: npm install hexo -g  
       - name: Deploy
         run: hexo clean && hexo deploy
