@@ -32,3 +32,12 @@ struct _zval_struct {
 	} u2;
 };
 ```
+
+```c
+struct _zend_string {
+	zend_refcounted_h gc;
+	zend_ulong        h;                /* hash value */
+	size_t            len;
+	char              val[1];
+};
+```
