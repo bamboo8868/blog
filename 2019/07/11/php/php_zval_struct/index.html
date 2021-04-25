@@ -94,15 +94,15 @@
 
 
 
-<meta name="description" content="123456789101112131415161718192021222324252627struct _zval_struct &amp;#123;	zend_value        value;			&#x2F;* value *&#x2F;	union &amp;#123;		uint32_t type_info;		struct &amp;#123;			ZEND_ENDIAN_LOHI_3(				zend_uchar    t">
+<meta name="description" content="#zval结构体 123456789101112131415161718192021222324252627struct _zval_struct &amp;#123;	zend_value        value;			&#x2F;* value *&#x2F;	union &amp;#123;		uint32_t type_info;		struct &amp;#123;			ZEND_ENDIAN_LOHI_3(				zend_u">
 <meta property="og:type" content="article">
 <meta property="og:title" content="认识PHP zval结构体">
-<meta property="og:url" content="https://bamboo8868.github.io/blog/2021/04/25/php/php_zval_struct/index.html">
+<meta property="og:url" content="https://bamboo8868.github.io/blog/2019/07/11/php/php_zval_struct/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="123456789101112131415161718192021222324252627struct _zval_struct &amp;#123;	zend_value        value;			&#x2F;* value *&#x2F;	union &amp;#123;		uint32_t type_info;		struct &amp;#123;			ZEND_ENDIAN_LOHI_3(				zend_uchar    t">
+<meta property="og:description" content="#zval结构体 123456789101112131415161718192021222324252627struct _zval_struct &amp;#123;	zend_value        value;			&#x2F;* value *&#x2F;	union &amp;#123;		uint32_t type_info;		struct &amp;#123;			ZEND_ENDIAN_LOHI_3(				zend_u">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2021-04-25T12:02:57.154Z">
-<meta property="article:modified_time" content="2021-04-25T12:02:57.154Z">
+<meta property="article:published_time" content="2019-07-11T00:00:00.000Z">
+<meta property="article:modified_time" content="2021-04-25T12:19:00.714Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 
@@ -133,7 +133,7 @@
 
 
 
-  <link rel="canonical" href="https://bamboo8868.github.io/blog/2021/04/25/php/php_zval_struct/"/>
+  <link rel="canonical" href="https://bamboo8868.github.io/blog/2019/07/11/php/php_zval_struct/"/>
 
 
 
@@ -262,7 +262,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://bamboo8868.github.io/blog/blog/2021/04/25/php/php_zval_struct/">
+    <link itemprop="mainEntityOfPage" href="https://bamboo8868.github.io/blog/blog/2019/07/11/php/php_zval_struct/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -291,8 +291,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-04-25T12:02:57+00:00">
-                2021-04-25
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-11T00:00:00+00:00">
+                2019-07-11
               </time>
             
 
@@ -301,6 +301,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/php/" itemprop="url" rel="index">
+                    <span itemprop="name">php</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -329,10 +351,16 @@
       
 
       
-        <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">zval_struct</span> &#123;</span></span><br><span class="line">	zend_value        value;			<span class="comment">/* value */</span></span><br><span class="line">	<span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">		<span class="keyword">uint32_t</span> type_info;</span><br><span class="line">		<span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">			ZEND_ENDIAN_LOHI_3(</span><br><span class="line">				zend_uchar    type,			<span class="comment">/* active type */</span></span><br><span class="line">				zend_uchar    type_flags,</span><br><span class="line">				<span class="keyword">union</span> &#123;</span><br><span class="line">					<span class="keyword">uint16_t</span>  extra;        <span class="comment">/* not further specified */</span></span><br><span class="line">				&#125; u)</span><br><span class="line">		&#125; v;</span><br><span class="line">	&#125; u1;</span><br><span class="line">	<span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     next;                 <span class="comment">/* hash collision chain */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     cache_slot;           <span class="comment">/* cache slot (for RECV_INIT) */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     opline_num;           <span class="comment">/* opline number (for FAST_CALL) */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     lineno;               <span class="comment">/* line number (for ast nodes) */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     num_args;             <span class="comment">/* arguments number for EX(This) */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     fe_pos;               <span class="comment">/* foreach position */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     fe_iter_idx;          <span class="comment">/* foreach iterator index */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     access_flags;         <span class="comment">/* class constant access flags */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     property_guard;       <span class="comment">/* single property guard */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     constant_flags;       <span class="comment">/* constant flags */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     extra;                <span class="comment">/* not further specified */</span></span><br><span class="line">	&#125; u2;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+        <p>#zval结构体</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">zval_struct</span> &#123;</span></span><br><span class="line">	zend_value        value;			<span class="comment">/* value */</span></span><br><span class="line">	<span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">		<span class="keyword">uint32_t</span> type_info;</span><br><span class="line">		<span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">			ZEND_ENDIAN_LOHI_3(</span><br><span class="line">				zend_uchar    type,			<span class="comment">/* active type */</span></span><br><span class="line">				zend_uchar    type_flags,</span><br><span class="line">				<span class="keyword">union</span> &#123;</span><br><span class="line">					<span class="keyword">uint16_t</span>  extra;        <span class="comment">/* not further specified */</span></span><br><span class="line">				&#125; u)</span><br><span class="line">		&#125; v;</span><br><span class="line">	&#125; u1;</span><br><span class="line">	<span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     next;                 <span class="comment">/* hash collision chain */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     cache_slot;           <span class="comment">/* cache slot (for RECV_INIT) */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     opline_num;           <span class="comment">/* opline number (for FAST_CALL) */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     lineno;               <span class="comment">/* line number (for ast nodes) */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     num_args;             <span class="comment">/* arguments number for EX(This) */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     fe_pos;               <span class="comment">/* foreach position */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     fe_iter_idx;          <span class="comment">/* foreach iterator index */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     access_flags;         <span class="comment">/* class constant access flags */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     property_guard;       <span class="comment">/* single property guard */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     constant_flags;       <span class="comment">/* constant flags */</span></span><br><span class="line">		<span class="keyword">uint32_t</span>     extra;                <span class="comment">/* not further specified */</span></span><br><span class="line">	&#125; u2;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>#zend_value</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">union</span> _<span class="title">zend_value</span> &#123;</span></span><br><span class="line">	zend_long         lval;				<span class="comment">/* long value */</span></span><br><span class="line">	<span class="keyword">double</span>            dval;				<span class="comment">/* double value */</span></span><br><span class="line">	zend_refcounted  *counted;</span><br><span class="line">	zend_string      *str;</span><br><span class="line">	zend_array       *arr;</span><br><span class="line">	zend_object      *obj;</span><br><span class="line">	zend_resource    *res;</span><br><span class="line">	zend_reference   *ref;</span><br><span class="line">	zend_ast_ref     *ast;</span><br><span class="line">	zval             *zv;</span><br><span class="line">	<span class="keyword">void</span>             *ptr;</span><br><span class="line">	zend_class_entry *ce;</span><br><span class="line">	zend_function    *func;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">		<span class="keyword">uint32_t</span> w1;</span><br><span class="line">		<span class="keyword">uint32_t</span> w2;</span><br><span class="line">	&#125; ww;</span><br><span class="line">&#125; zend_value;</span><br></pre></td></tr></table></figure>
+
 <p>#zend_string</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">zend_string</span> &#123;</span></span><br><span class="line">	zend_refcounted_h gc;</span><br><span class="line">	zend_ulong        h;                <span class="comment">/* hash value */</span></span><br><span class="line">	<span class="keyword">size_t</span>            len;</span><br><span class="line">	<span class="keyword">char</span>              val[<span class="number">1</span>];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>##初始化<br>zend_string *zend_string_init(const char *str, size_t len, bool persistent)</p>
+<p>zend_string_init(“hello world”,sizeof(“hello world”)-1,0)</p>
+<p>#zend</p>
 
       
     </div>
@@ -439,6 +467,15 @@
             </div>
           
 
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">categories</span>
+              
+            </div>
           
 
           
