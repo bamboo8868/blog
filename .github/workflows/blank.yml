@@ -24,4 +24,4 @@ jobs:
       - name: Install Dependencies
         run: npm install
       - name: Deploy
-        run: npm clean && npm deploy
+        run: hexo clean && hexo deploy
