@@ -26,10 +26,12 @@ jobs:
       - name: install hexo
         run: npm install hexo -g  
 
-      - name: set git config
-        run: git config --global user.name 'jack' && git config --global user.email 'jack@qq.com'
       - name: Deploy
-        run: hexo clean && hexo deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
         
         
         
