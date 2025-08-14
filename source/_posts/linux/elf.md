@@ -1,3 +1,12 @@
+---
+title: linux 二进制工具
+date: 2020-01-01
+categories:
+ - linux
+tags:
+ - linux
+---
+
 ```````
 工具	功能说明
 strings	输出 ELF文件 中的所有字符串
