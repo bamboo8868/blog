@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>mysql8主从分离 | bamboo三味书屋</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="keywords" content="">
+  <meta name="theme-color" content="#10b981">
+
+  <link rel="canonical" href="https://bamboo8868.github.io/blog/2020/01/01/mysql/mysql8%E4%B8%BB%E4%BB%8E%E5%88%86%E7%A6%BB/">
+
+  
+
+  <meta name="description" content="MySQL 8.0 主从分离部署全指南：从原理到实战在高并发业务场景中，单台 MySQL 数据库往往难以承受读写压力 —— 大量查询操作（读）会占用数据库资源，导致写入操作（写）响应变慢。主从分离通过将读写操作拆分到不同服务器，能有效提升数据库吞吐量，同时实现数据备份与故障转移。本文将详细讲解 MySQL 8.0 主从分离的部署流程，从原理到实操一步到位。 一、主从分离核心原理MySQL 主从分离">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql8主从分离">
+<meta property="og:url" content="https://bamboo8868.github.io/blog/2020/01/01/mysql/mysql8%E4%B8%BB%E4%BB%8E%E5%88%86%E7%A6%BB/index.html">
+<meta property="og:site_name" content="bamboo三味书屋">
+<meta property="og:description" content="MySQL 8.0 主从分离部署全指南：从原理到实战在高并发业务场景中，单台 MySQL 数据库往往难以承受读写压力 —— 大量查询操作（读）会占用数据库资源，导致写入操作（写）响应变慢。主从分离通过将读写操作拆分到不同服务器，能有效提升数据库吞吐量，同时实现数据备份与故障转移。本文将详细讲解 MySQL 8.0 主从分离的部署流程，从原理到实操一步到位。 一、主从分离核心原理MySQL 主从分离">
+<meta property="og:locale">
+<meta property="article:published_time" content="2020-01-01T00:00:00.000Z">
+<meta property="article:modified_time" content="2025-08-14T01:05:54.722Z">
+<meta property="article:author" content="Mr.Lee">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+  <meta name="generator" content="Hexo 5.4.0">
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://bamboo8868.github.io/blog/2020/01/01/mysql/mysql8%E4%B8%BB%E4%BB%8E%E5%88%86%E7%A6%BB/"},"headline":"mysql8主从分离","description":"MySQL 8.0 主从分离部署全指南：从原理到实战在高并发业务场景中，单台 MySQL 数据库往往难以承受读写压力 —— 大量查询操作（读）会占用数据库资源，导致写入操作（写）响应变慢。主从分离通过将读写操作拆分到不同服务器，能有效提升数据库吞吐量，同时实现数据备份与故障转移。本文将详细讲解 MySQL 8.0 主从","datePublished":"2020-01-01T00:00:00.000Z","dateModified":"2025-08-14T01:05:54.722Z","author":{"@type":"Person","name":"Mr.Lee"},"publisher":{"@type":"Organization","name":"bamboo三味书屋","logo":{"@type":"ImageObject","url":"https://bamboo8868.github.io/blog/favicon.ico"}}}
+</script>
+
+  
+  
+<link rel="stylesheet" href="/blog/css/main.css">
+
+  <style>
+    :root {
+      --sea-color-primary: #10b981;
+    }
+  </style>
+
+  
+<script src="/blog/js/theme_mode.js"></script>
+
+</head>
+<body>
+  <header class="sea-header">
+    <nav class="sea-nav-wrap">
+  <div class="sea-nav-logo" title="">
+    <a href="/blog/">bamboo三味书屋</a>
+  </div>
+  <div class="sea-nav-menus">
+    <div id="sea-nav-toggle">
+      <svg t="1716965724278" class="sea-svg-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10878" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M950.857143 768v73.142857c0 20.004571-16.566857 36.571429-36.571429 36.571429H109.714286c-20.004571 0-36.571429-16.566857-36.571429-36.571429v-73.142857c0-20.004571 16.566857-36.571429 36.571429-36.571429h804.571428c20.004571 0 36.571429 16.566857 36.571429 36.571429z m0-292.571429v73.142858c0 20.004571-16.566857 36.571429-36.571429 36.571428H109.714286c-20.004571 0-36.571429-16.566857-36.571429-36.571428v-73.142858c0-20.004571 16.566857-36.571429 36.571429-36.571428h804.571428c20.004571 0 36.571429 16.566857 36.571429 36.571428z m0-292.571428v73.142857c0 20.004571-16.566857 36.571429-36.571429 36.571429H109.714286c-20.004571 0-36.571429-16.566857-36.571429-36.571429V182.857143c0-20.004571 16.566857-36.571429 36.571429-36.571429h804.571428c20.004571 0 36.571429 16.566857 36.571429 36.571429z" p-id="10879"></path></svg>
+    </div>
+
+    <div id="sea-nav-dimmer"></div>
+<div class="sea-menu-wrap">
+  
+    <a
+      class="sea-menu-link "
+      
+      href="/blog/categories/"
+    >
+      分类
+    </a>
+  
+    <a
+      class="sea-menu-link "
+      
+      href="/blog/tags/"
+    >
+      标签
+    </a>
+  
+
+  <span class="sea-menu-sep">|</span>
+
+  
+
+  <span class="sea-menu-icon" id="sea-theme-dark">
+    <svg t="1725413107294" class="sea-svg-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10118" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M557.553778 976.355556c-257.265778 0-466.56-207.160889-466.56-464.426667 0-253.923556 206.577778-464.284444 460.501333-464.284445h0.355556c10.766222 0 20.622222 3.953778 25.443555 13.610667 4.878222 9.756444 3.740444 20.394667-2.915555 29.027556-55.722667 72.220444-85.162667 158.108444-85.162667 249.372444 0 225.891556 183.779556 409.386667 409.671111 409.386667l5.248-0.256c10.325333-0.142222 20.977778 5.859556 25.841778 15.644444a28.302222 28.302222 0 0 1-2.915556 30.051556C837.902222 910.08 703.203556 976.355556 557.553778 976.355556zM495.274667 105.016889C299.192889 135.281778 147.882667 306.161778 147.882667 509.809778c0 225.877333 183.779556 409.656889 409.671111 409.656889 108.686222 0 210.403556-42.055111 286.577778-116.977778-231.566222-27.192889-411.804444-224.625778-411.804445-463.36 0-83.427556 21.617778-163.299556 62.947556-234.112z" fill="" p-id="10119"></path><path d="M578.830222 879.132444c-186.865778 0-345.784889-133.418667-377.841778-317.269333a14.222222 14.222222 0 1 1 28.017778-4.878222c29.681778 170.183111 176.810667 293.703111 349.824 293.703111a14.222222 14.222222 0 1 1 0 28.444444zM209.991111 531.2c-7.537778 0-13.838222-6.997333-14.193778-14.606222-0.312889-6.584889-0.483556-13.795556-0.483555-20.465778 0-7.864889 6.357333-14.492444 14.222222-14.492444s14.222222 6.229333 14.222222 14.094222c0 6.229333 0.170667 13.425778 0.455111 19.584 0.369778 7.850667-5.674667 15.886222-13.525333 15.886222h-0.696889z" fill="" p-id="10120"></path><path d="M622.350222 309.930667m-25.344 0a25.344 25.344 0 1 0 50.688 0 25.344 25.344 0 1 0-50.688 0Z" fill="" p-id="10121"></path><path d="M787.072 188.273778m-25.344 0a25.344 25.344 0 1 0 50.688 0 25.344 25.344 0 1 0-50.688 0Z" fill="" p-id="10122"></path><path d="M731.960889 415.303111m-25.344 0a25.344 25.344 0 1 0 50.688 0 25.344 25.344 0 1 0-50.688 0Z" p-id="10123"></path></svg>
+  </span>
+  <span class="sea-menu-icon" id="sea-theme-light">
+    <svg t="1725410359322" class="sea-svg-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4274" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M512 768c-141.376 0-256-114.624-256-256s114.624-256 256-256 256 114.624 256 256-114.624 256-256 256z m0-85.333333a170.666667 170.666667 0 1 0 0-341.333334 170.666667 170.666667 0 0 0 0 341.333334zM469.333333 85.333333a42.666667 42.666667 0 1 1 85.333334 0v85.333334a42.666667 42.666667 0 1 1-85.333334 0V85.333333z m0 768a42.666667 42.666667 0 1 1 85.333334 0v85.333334a42.666667 42.666667 0 1 1-85.333334 0v-85.333334zM85.333333 554.666667a42.666667 42.666667 0 1 1 0-85.333334h85.333334a42.666667 42.666667 0 1 1 0 85.333334H85.333333z m768 0a42.666667 42.666667 0 1 1 0-85.333334h85.333334a42.666667 42.666667 0 1 1 0 85.333334h-85.333334zM161.834667 222.165333a42.666667 42.666667 0 0 1 60.330666-60.330666l64 64a42.666667 42.666667 0 0 1-60.330666 60.330666l-64-64z m576 576a42.666667 42.666667 0 0 1 60.330666-60.330666l64 64a42.666667 42.666667 0 0 1-60.330666 60.330666l-64-64z m-515.669334 64a42.666667 42.666667 0 0 1-60.330666-60.330666l64-64a42.666667 42.666667 0 0 1 60.330666 60.330666l-64 64z m576-576a42.666667 42.666667 0 0 1-60.330666-60.330666l64-64a42.666667 42.666667 0 0 1 60.330666 60.330666l-64 64z" p-id="4275"></path></svg>
+  </span>
+
+  <span id="sea-menu-close-icon">
+    <svg t="1725435896874" class="sea-svg-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4408" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M556.8 512l265.6-265.6c12.8-12.8 12.8-32 0-44.8s-32-12.8-44.8 0L512 467.2 246.4 201.6c-12.8-12.8-32-12.8-44.8 0s-12.8 32 0 44.8l265.6 265.6-265.6 265.6c-12.8 12.8-12.8 32 0 44.8 6.4 6.4 12.8 9.6 22.4 9.6s16-3.2 22.4-9.6l265.6-265.6 265.6 265.6c6.4 6.4 16 9.6 22.4 9.6s16-3.2 22.4-9.6c12.8-12.8 12.8-32 0-44.8L556.8 512z" p-id="4409"></path></svg>
+  </span>
+</div>
+  </div>
+</nav>
+  </header>
+  <main id="sea-main-wrapper" data-pagefind-body>
+    <article class="sea-page-card-wrapper">
+  <header class="sea-article-header">
+    <h1 class="sea-article-title">mysql8主从分离</h1>
+    
+      <div class="sea-post-meta sea-post-meta__center">
+        <div class="sea-post-time">
+  <svg t="1716964550804" class="sea-svg-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2621" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M805.49888 981.49888l-602.3168-0.76288c-86.59456-8.192-154.56768-81.3056-154.56768-170.01472L48.6144 291.73248c0-94.1568 76.60032-170.75712 170.7776-170.75712l586.10176 0c94.1568 0 170.73152 76.60032 170.73152 170.75712L976.22528 810.7008C976.2304 904.87296 899.63008 981.49888 805.49888 981.49888L805.49888 981.49888zM219.3664 190.57152c-55.79776 0-101.20192 45.38368-101.20192 101.18144l0 518.96832c0 55.79776 45.40416 101.20704 101.20192 101.20704l586.13248 0c55.77728 0 101.16096-45.40928 101.16096-101.20704L906.65984 291.73248c0-55.79776-45.38368-101.18656-101.16096-101.18656L219.3664 190.54592 219.3664 190.57152zM698.84416 290.51904c-25.60512 0-46.38208-20.77696-46.38208-46.38208l0-158.6688c0-25.6 20.77696-46.38208 46.38208-46.38208 25.6 0 46.38208 20.78208 46.38208 46.38208L745.22624 244.1216C745.22624 269.7472 724.46976 290.51904 698.84416 290.51904L698.84416 290.51904zM315.65824 290.51904c-25.60512 0-46.38208-20.77696-46.38208-46.38208l0-158.6688c0-25.6 20.77696-46.38208 46.38208-46.38208 25.6 0 46.38208 20.78208 46.38208 46.38208L362.04032 244.1216C362.04032 269.7472 341.28896 290.51904 315.65824 290.51904L315.65824 290.51904zM534.8864 794.78784l-44.27264 0c-25.6 0-46.38208-20.77696-46.38208-46.38208 0-25.6 20.78208-46.38208 46.38208-46.38208l44.27264 0c25.6 0 46.38208 20.78208 46.38208 46.38208C581.26848 774.01088 560.4864 794.78784 534.8864 794.78784L534.8864 794.78784zM930.79552 452.608 121.24672 452.608c-25.60512 0-46.38208-20.78208-46.38208-46.38208 0-25.60512 20.77696-46.38208 46.38208-46.38208l809.5744 0c25.6 0 46.38208 20.77696 46.38208 46.38208C977.2032 431.82592 956.42624 452.608 930.79552 452.608L930.79552 452.608zM327.92576 649.03168l-44.27264 0c-25.6 0-46.38208-20.78208-46.38208-46.38208 0-25.60512 20.78208-46.38208 46.38208-46.38208l44.27264 0c25.6 0 46.38208 20.77696 46.38208 46.38208C374.30784 628.25472 353.52576 649.03168 327.92576 649.03168L327.92576 649.03168zM534.8864 649.03168l-44.27264 0c-25.6 0-46.38208-20.78208-46.38208-46.38208 0-25.60512 20.78208-46.38208 46.38208-46.38208l44.27264 0c25.6 0 46.38208 20.77696 46.38208 46.38208S560.4864 649.03168 534.8864 649.03168L534.8864 649.03168zM741.27872 649.03168l-44.26752 0c-25.60512 0-46.38208-20.78208-46.38208-46.38208 0-25.60512 20.77696-46.38208 46.38208-46.38208l44.26752 0c25.60512 0 46.38208 20.77696 46.38208 46.38208C787.6608 628.25472 766.90944 649.03168 741.27872 649.03168L741.27872 649.03168zM327.92576 794.78784l-44.27264 0c-25.6 0-46.38208-20.77696-46.38208-46.38208 0-25.6 20.78208-46.38208 46.38208-46.38208l44.27264 0c25.6 0 46.38208 20.78208 46.38208 46.38208C374.30784 774.01088 353.52576 794.78784 327.92576 794.78784L327.92576 794.78784zM741.27872 794.78784l-44.26752 0c-25.60512 0-46.38208-20.77696-46.38208-46.38208 0-25.6 20.77696-46.38208 46.38208-46.38208l44.26752 0c25.60512 0 46.38208 20.78208 46.38208 46.38208C787.6608 774.01088 766.90944 794.78784 741.27872 794.78784L741.27872 794.78784z" p-id="2622"></path></svg>
+  <time datetime="2020-01-01T00:00:00.000Z">2020-01-01</time>
+</div>
+        
+  <div class="sea-post-categories">
+    <svg t="1716964680422" class="sea-svg-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4550" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M810.666667 85.333333a85.333333 85.333333 0 0 1 85.333333 85.333334v152.021333c36.821333 9.493333 64 42.88 64 82.645333v405.333334a128 128 0 0 1-128 128H192a128 128 0 0 1-128-128V298.666667a85.376 85.376 0 0 1 64-82.645334V170.666667a85.333333 85.333333 0 0 1 85.333333-85.333334h597.333334zM128.149333 296.170667L128 298.666667v512a64 64 0 0 0 60.245333 63.893333L192 874.666667h640a64 64 0 0 0 63.893333-60.245334L896 810.666667V405.333333a21.333333 21.333333 0 0 0-18.837333-21.184L874.666667 384H638.165333l-122.069333-101.717333a21.333333 21.333333 0 0 0-10.688-4.736l-2.986667-0.213334H149.333333a21.333333 21.333333 0 0 0-21.184 18.837334zM535.189333 213.333333l127.978667 106.666667H832V170.666667a21.333333 21.333333 0 0 0-18.837333-21.184L810.666667 149.333333H213.333333a21.333333 21.333333 0 0 0-21.184 18.837334L192 170.666667v42.666666h343.168z" p-id="4551"></path></svg>
+    <a class="category-link" href="/blog/categories/mysql/">mysql</a>
+  </div>
+
+        
+  <div class="sea-post-tags">
+    <svg t="1716964811431" class="sea-svg-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6117" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M384 977.152c-20.5312 0-39.8336-7.9872-54.3232-22.4256l-260.4032-260.4032c-14.4896-14.4896-22.4256-33.7408-22.4256-54.3232s7.9872-39.8336 22.4256-54.3232l439.6032-439.6032c24.9344-24.9344 70.2464-43.7248 105.5232-43.7248h230.4c42.3424 0 76.8 34.4576 76.8 76.8v230.4c0 35.2256-18.7904 80.5888-43.6736 105.5232l-439.6032 439.6032a76.1856 76.1856 0 0 1-54.3232 22.4256zM614.4 153.6c-21.248 0-54.272 13.6704-69.2736 28.7232l-439.6032 439.6032c-4.8128 4.8128-7.424 11.2128-7.424 18.1248s2.6624 13.312 7.424 18.0736l260.4032 260.4032c4.8128 4.8128 11.2128 7.424 18.1248 7.424s13.312-2.6624 18.1248-7.424l439.6032-439.6032c15.0016-15.0016 28.7232-48.0768 28.7232-69.3248V179.2a25.6 25.6 0 0 0-25.6-25.6h-230.4z" p-id="6118"></path><path d="M742.4 358.4c-42.3424 0-76.8-34.4576-76.8-76.8S700.0576 204.8 742.4 204.8s76.8 34.4576 76.8 76.8S784.7424 358.4 742.4 358.4z m0-102.4a25.6 25.6 0 1 0 0 51.2 25.6 25.6 0 0 0 0-51.2z" p-id="6119"></path></svg>
+    <a class="tag-link" href="/blog/tags/mysql/" rel="tag">mysql</a>
+  </div>
+
+      </div>
+    
+  </header>
+  <div class="sea-doc">
+    
+    <div class="sea-article-content">
+      <h1 id="MySQL-8-0-主从分离部署全指南：从原理到实战"><a href="#MySQL-8-0-主从分离部署全指南：从原理到实战" class="headerlink" title="MySQL 8.0 主从分离部署全指南：从原理到实战"></a>MySQL 8.0 主从分离部署全指南：从原理到实战</h1><p>在高并发业务场景中，单台 MySQL 数据库往往难以承受读写压力 —— 大量查询操作（读）会占用数据库资源，导致写入操作（写）响应变慢。<strong>主从分离</strong>通过将读写操作拆分到不同服务器，能有效提升数据库吞吐量，同时实现数据备份与故障转移。本文将详细讲解 MySQL 8.0 主从分离的部署流程，从原理到实操一步到位。</p>
+<h2 id="一、主从分离核心原理"><a href="#一、主从分离核心原理" class="headerlink" title="一、主从分离核心原理"></a>一、主从分离核心原理</h2><p>MySQL 主从分离基于<strong>二进制日志（binlog）</strong> 实现，核心流程如下：</p>
+<ol>
+<li><p> <strong>主库（Master）</strong>：负责处理所有写操作（INSERT/UPDATE/DELETE），并将操作记录到 binlog 中。</p>
+</li>
+<li><p> <strong>从库（Slave）</strong>：通过 IO 线程读取主库的 binlog，写入本地中继日志（relay log），再通过 SQL 线程执行中继日志中的操作，实现与主库数据同步。</p>
+</li>
+<li><p> <strong>应用层</strong>：写操作指向主库，读操作（SELECT）分配到从库，实现读写分离。</p>
+</li>
+</ol>
+<p><strong>优势</strong>：</p>
+<ul>
+<li><p>  减轻主库压力：读操作分流到从库，主库专注处理写操作。</p>
+</li>
+<li><p>  数据备份：从库实时同步主库数据，可作为热备份。</p>
+</li>
+<li><p>  高可用：主库故障时，可手动或自动切换到从库。</p>
+</li>
+</ul>
+<h2 id="二、部署前准备"><a href="#二、部署前准备" class="headerlink" title="二、部署前准备"></a>二、部署前准备</h2><h3 id="1-环境要求"><a href="#1-环境要求" class="headerlink" title="1. 环境要求"></a>1. 环境要求</h3><ul>
+<li><p>  两台服务器（或虚拟机），建议配置：2 核 CPU + 4GB 内存（生产环境可更高）。</p>
+</li>
+<li><p>  操作系统：CentOS 7/8 或 Ubuntu 20.04+（本文以 CentOS 7 为例）。</p>
+</li>
+<li><p>  MySQL 版本：8.0.x（主从库版本需保持一致，避免兼容性问题）。</p>
+</li>
+<li><p>  网络：主从库需互通，关闭防火墙或开放 3306 端口。</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>IP 地址</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主库</td>
+<td>192.168.1.100</td>
+<td>处理写操作，生成 binlog</td>
+</tr>
+<tr>
+<td>从库</td>
+<td>192.168.1.101</td>
+<td>同步主库数据，处理读操作</td>
+</tr>
+</tbody></table>
+<h3 id="2-安装-MySQL-8-0"><a href="#2-安装-MySQL-8-0" class="headerlink" title="2. 安装 MySQL 8.0"></a>2. 安装 MySQL 8.0</h3><p>主从库均需安装 MySQL 8.0，以 CentOS 7 为例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">\# 安装MySQL官方仓库</span><br><span class="line"></span><br><span class="line">wget https:&#x2F;&#x2F;dev.mysql.com&#x2F;get&#x2F;mysql80-community-release-el7-7.noarch.rpm</span><br><span class="line"></span><br><span class="line">rpm -ivh mysql80-community-release-el7-7.noarch.rpm</span><br><span class="line"></span><br><span class="line">\# 安装MySQL 8.0</span><br><span class="line"></span><br><span class="line">yum install -y mysql-community-server</span><br><span class="line"></span><br><span class="line">\# 启动服务并设置开机自启</span><br><span class="line"></span><br><span class="line">systemctl start mysqld</span><br><span class="line"></span><br><span class="line">systemctl enable mysqld</span><br><span class="line"></span><br><span class="line">\# 查看初始密码（首次登录用）</span><br><span class="line"></span><br><span class="line">grep &#39;temporary password&#39; &#x2F;var&#x2F;log&#x2F;mysqld.log</span><br></pre></td></tr></table></figure>
+
+<p>登录 MySQL 并修改密码（主从库均需执行）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root -p</span><br><span class="line"></span><br><span class="line">\# 输入初始密码后执行以下命令（密码需包含大小写、数字和特殊字符）</span><br><span class="line"></span><br><span class="line">ALTER USER &#39;root&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;YourStrong!Passw0rd&#39;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、主库（Master）配置"><a href="#三、主库（Master）配置" class="headerlink" title="三、主库（Master）配置"></a>三、主库（Master）配置</h2><h3 id="1-修改-MySQL-配置文件"><a href="#1-修改-MySQL-配置文件" class="headerlink" title="1. 修改 MySQL 配置文件"></a>1. 修改 MySQL 配置文件</h3><p>编辑 <code>/etc/my.cnf</code>，添加以下配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">\[mysqld]</span><br><span class="line"></span><br><span class="line">\# 启用binlog，指定日志文件名前缀</span><br><span class="line"></span><br><span class="line">log\_bin &#x3D; &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;mysql-bin</span><br><span class="line"></span><br><span class="line">\# 主库唯一ID（1-255，不可与从库重复）</span><br><span class="line"></span><br><span class="line">server-id &#x3D; 100</span><br><span class="line"></span><br><span class="line">\# 同步的数据库（如需同步所有库可省略）</span><br><span class="line"></span><br><span class="line">binlog\_do\_db &#x3D; test\_db</span><br><span class="line"></span><br><span class="line">\# 忽略同步的数据库（可选）</span><br><span class="line"></span><br><span class="line">binlog\_ignore\_db &#x3D; mysql</span><br><span class="line"></span><br><span class="line">\# binlog格式（ROW模式更安全，记录每行数据变化）</span><br><span class="line"></span><br><span class="line">binlog\_format &#x3D; ROW</span><br><span class="line"></span><br><span class="line">\# 自动删除7天前的binlog，避免磁盘占满</span><br><span class="line"></span><br><span class="line">expire\_logs\_days &#x3D; 7</span><br></pre></td></tr></table></figure>
+
+<p>重启 MySQL 使配置生效：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart mysqld</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-创建用于主从同步的用户"><a href="#2-创建用于主从同步的用户" class="headerlink" title="2. 创建用于主从同步的用户"></a>2. 创建用于主从同步的用户</h3><p>登录主库 MySQL，创建一个仅用于从库同步的用户（如 <code>repl</code>）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">\-- 允许从库IP（192.168.1.101）使用repl用户连接</span><br><span class="line"></span><br><span class="line">CREATE USER &#39;repl&#39;@&#39;192.168.1.101&#39; IDENTIFIED BY &#39;ReplPass!2024&#39;;</span><br><span class="line"></span><br><span class="line">\-- 授予复制权限</span><br><span class="line"></span><br><span class="line">GRANT REPLICATION SLAVE ON \*.\* TO &#39;repl&#39;@&#39;192.168.1.101&#39;;</span><br><span class="line"></span><br><span class="line">\-- 刷新权限</span><br><span class="line"></span><br><span class="line">FLUSH PRIVILEGES;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-查看主库状态"><a href="#3-查看主库状态" class="headerlink" title="3. 查看主库状态"></a>3. 查看主库状态</h3><p>执行以下命令获取 binlog 文件名和位置（从库配置需要）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">\-- 锁定数据库，禁止写入（避免配置期间数据变化）</span><br><span class="line"></span><br><span class="line">FLUSH TABLES WITH READ LOCK;</span><br><span class="line"></span><br><span class="line">\-- 查看主库状态</span><br><span class="line"></span><br><span class="line">SHOW MASTER STATUS;</span><br></pre></td></tr></table></figure>
+
+<p>输出如下（记录 <code>File</code> 和 <code>Position</code> 的值）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">+------------------+----------+--------------+------------------+-------------------+</span><br><span class="line"></span><br><span class="line">\| File             | Position | Binlog\_Do\_DB | Binlog\_Ignore\_DB | Executed\_Gtid\_Set |</span><br><span class="line"></span><br><span class="line">+------------------+----------+--------------+------------------+-------------------+</span><br><span class="line"></span><br><span class="line">\| mysql-bin.000001 |      156 | test\_db      | mysql            |                   |</span><br><span class="line"></span><br><span class="line">+------------------+----------+--------------+------------------+-------------------+</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：此时不要关闭 MySQL 终端，配置完从库后再解锁（执行 </p>
+<p><code>UNLOCK TABLES;</code></p>
+<p>）。</p>
+</blockquote>
+<h2 id="四、从库（Slave）配置"><a href="#四、从库（Slave）配置" class="headerlink" title="四、从库（Slave）配置"></a>四、从库（Slave）配置</h2><h3 id="1-修改-MySQL-配置文件-1"><a href="#1-修改-MySQL-配置文件-1" class="headerlink" title="1. 修改 MySQL 配置文件"></a>1. 修改 MySQL 配置文件</h3><p>编辑 <code>/etc/my.cnf</code>，添加以下配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">\[mysqld]</span><br><span class="line"></span><br><span class="line">\# 从库唯一ID（不可与主库重复）</span><br><span class="line"></span><br><span class="line">server-id &#x3D; 101</span><br><span class="line"></span><br><span class="line">\# 中继日志文件名前缀</span><br><span class="line"></span><br><span class="line">relay\_log &#x3D; &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;mysql-relay-bin</span><br><span class="line"></span><br><span class="line">\# 从库只读（禁止写操作，可选但推荐）</span><br><span class="line"></span><br><span class="line">read\_only &#x3D; 1</span><br><span class="line"></span><br><span class="line">\# 忽略同步的数据库（与主库保持一致）</span><br><span class="line"></span><br><span class="line">replicate\_ignore\_db &#x3D; mysql</span><br></pre></td></tr></table></figure>
+
+<p>重启 MySQL：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart mysqld</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-配置从库同步主库"><a href="#2-配置从库同步主库" class="headerlink" title="2. 配置从库同步主库"></a>2. 配置从库同步主库</h3><p>登录从库 MySQL，执行以下命令配置主库信息（替换为实际值）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">\-- 停止从库同步进程</span><br><span class="line"></span><br><span class="line">STOP SLAVE;</span><br><span class="line"></span><br><span class="line">\-- 配置主库连接信息</span><br><span class="line"></span><br><span class="line">CHANGE MASTER TO</span><br><span class="line"></span><br><span class="line">MASTER\_HOST &#x3D; &#39;192.168.1.100&#39;,  -- 主库IP</span><br><span class="line"></span><br><span class="line">MASTER\_USER &#x3D; &#39;repl&#39;,           -- 同步用户</span><br><span class="line"></span><br><span class="line">MASTER\_PASSWORD &#x3D; &#39;ReplPass!2024&#39;,  -- 同步用户密码</span><br><span class="line"></span><br><span class="line">MASTER\_LOG\_FILE &#x3D; &#39;mysql-bin.000001&#39;,  -- 主库binlog文件名（从SHOW MASTER STATUS获取）</span><br><span class="line"></span><br><span class="line">MASTER\_LOG\_POS &#x3D; 156;           -- 主库binlog位置（从SHOW MASTER STATUS获取）</span><br><span class="line"></span><br><span class="line">\-- 启动从库同步进程</span><br><span class="line"></span><br><span class="line">START SLAVE;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-查看从库同步状态"><a href="#3-查看从库同步状态" class="headerlink" title="3. 查看从库同步状态"></a>3. 查看从库同步状态</h3><p>执行以下命令验证同步状态：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHOW SLAVE STATUS\G</span><br></pre></td></tr></table></figure>
+
+<p>关键参数需满足：</p>
+<ul>
+<li><p>  <code>Slave_IO_Running: Yes</code>（IO 线程正常运行）</p>
+</li>
+<li><p>  <code>Slave_SQL_Running: Yes</code>（SQL 线程正常运行）</p>
+</li>
+</ul>
+<p>若均为 <code>Yes</code>，说明主从同步配置成功！</p>
+<blockquote>
+<p>此时回到主库终端，执行 </p>
+<p><code>UNLOCK TABLES;</code></p>
+<p> 解锁数据库。</p>
+</blockquote>
+<h2 id="五、验证主从同步"><a href="#五、验证主从同步" class="headerlink" title="五、验证主从同步"></a>五、验证主从同步</h2><h3 id="1-主库写入数据"><a href="#1-主库写入数据" class="headerlink" title="1. 主库写入数据"></a>1. 主库写入数据</h3><p>在主库创建测试数据库和表，并插入数据：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">\-- 创建数据库（与binlog\_do\_db配置一致）</span><br><span class="line"></span><br><span class="line">CREATE DATABASE test\_db;</span><br><span class="line"></span><br><span class="line">USE test\_db;</span><br><span class="line"></span><br><span class="line">\-- 创建表</span><br><span class="line"></span><br><span class="line">CREATE TABLE user (</span><br><span class="line"></span><br><span class="line">&amp;#x20; id INT PRIMARY KEY AUTO\_INCREMENT,</span><br><span class="line"></span><br><span class="line">&amp;#x20; name VARCHAR(50) NOT NULL</span><br><span class="line"></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">\-- 插入数据</span><br><span class="line"></span><br><span class="line">INSERT INTO user (name) VALUES (&#39;Alice&#39;), (&#39;Bob&#39;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-从库验证数据"><a href="#2-从库验证数据" class="headerlink" title="2. 从库验证数据"></a>2. 从库验证数据</h3><p>在从库查询数据，确认已同步：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">USE test\_db;</span><br><span class="line"></span><br><span class="line">SELECT \* FROM user;</span><br></pre></td></tr></table></figure>
+
+<p>若输出以下结果，说明同步成功：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">+----+-------+</span><br><span class="line"></span><br><span class="line">\| id | name  |</span><br><span class="line"></span><br><span class="line">+----+-------+</span><br><span class="line"></span><br><span class="line">\|  1 | Alice |</span><br><span class="line"></span><br><span class="line">\|  2 | Bob   |</span><br><span class="line"></span><br><span class="line">+----+-------+</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、常见问题与解决"><a href="#六、常见问题与解决" class="headerlink" title="六、常见问题与解决"></a>六、常见问题与解决</h2><h3 id="1-从库-Slave-IO-Running-Connecting"><a href="#1-从库-Slave-IO-Running-Connecting" class="headerlink" title="1. 从库 Slave_IO_Running: Connecting"></a>1. 从库 <code>Slave_IO_Running: Connecting</code></h3><ul>
+<li><p>  <strong>原因</strong>：网络不通、主库防火墙未开放 3306 端口、同步用户密码错误。</p>
+</li>
+<li><p>  <strong>解决</strong>：</p>
+</li>
+</ul>
+<pre><code>*   检查主从库网络：`ping ``192.168.1.100`
+
+*   开放主库端口：`firewall-cmd --add-port=3306/tcp --permanent &amp;&amp; firewall-cmd --reload`
+
+*   验证同步用户权限：在从库执行 `mysql -h ``192.168.1.100`` -u repl -p`
+</code></pre>
+<h3 id="2-从库-Slave-SQL-Running-No"><a href="#2-从库-Slave-SQL-Running-No" class="headerlink" title="2. 从库 Slave_SQL_Running: No"></a>2. 从库 <code>Slave_SQL_Running: No</code></h3><ul>
+<li><p>  <strong>原因</strong>：主从库数据不一致（如从库已有同名表）、binlog 格式不兼容。</p>
+</li>
+<li><p>  <strong>解决</strong>：</p>
+</li>
+</ul>
+<pre><code>*   重置从库状态：`STOP SLAVE; RESET SLAVE ALL;`（清空之前的配置）
+
+*   重新配置主从同步（参考步骤四.2）
+
+*   确保主从库表结构一致，必要时手动同步初始数据（如用 `mysqldump` 导出主库数据导入从库）。
+</code></pre>
+<h3 id="3-主库-binlog-文件过大"><a href="#3-主库-binlog-文件过大" class="headerlink" title="3. 主库 binlog 文件过大"></a>3. 主库 binlog 文件过大</h3><ul>
+<li>  <strong>解决</strong>：配置 <code>expire_logs_days</code> 自动清理旧日志，或手动删除：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">\-- 查看binlog文件</span><br><span class="line"></span><br><span class="line">SHOW BINARY LOGS;</span><br><span class="line"></span><br><span class="line">\-- 删除指定文件之前的日志</span><br><span class="line"></span><br><span class="line">PURGE BINARY LOGS TO &#39;mysql-bin.000003&#39;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="七、总结与扩展"><a href="#七、总结与扩展" class="headerlink" title="七、总结与扩展"></a>七、总结与扩展</h2><p>本文详细讲解了 MySQL 8.0 主从分离的部署流程，核心步骤包括：</p>
+<ol>
+<li><p> 主库启用 binlog 并创建同步用户。</p>
+</li>
+<li><p> 从库配置中继日志并关联主库。</p>
+</li>
+<li><p> 验证同步状态和数据一致性。</p>
+</li>
+</ol>
+<p><strong>扩展方向</strong>：</p>
+<ul>
+<li><p>  <strong>多从库架构</strong>：一台主库可配置多台从库，进一步分流读压力。</p>
+</li>
+<li><p>  <strong>半同步复制</strong>：通过 <code>rpl_semi_sync_master_enabled</code> 配置，确保主库收到至少一个从库的确认后再返回成功，提升数据安全性。</p>
+</li>
+<li><p>  <strong>读写分离中间件</strong>：使用 MyCat、ShardingSphere 等工具自动分配读写请求，无需手动指定主从库地址。</p>
+</li>
+</ul>
+<p>掌握主从分离是 MySQL 高可用架构的基础，合理配置可显著提升系统稳定性与性能。</p>
+
+    </div>
+  </div>
+
+  
+    
+  <div class="sea-prev-next-wrapper">
+    
+      <div class="prev">
+        <svg t="1725418977480" class="sea-svg-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4239" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M384 512L731.733333 202.666667c17.066667-14.933333 19.2-42.666667 4.266667-59.733334-14.933333-17.066667-42.666667-19.2-59.733333-4.266666l-384 341.333333c-10.666667 8.533333-14.933333 19.2-14.933334 32s4.266667 23.466667 14.933334 32l384 341.333333c8.533333 6.4 19.2 10.666667 27.733333 10.666667 12.8 0 23.466667-4.266667 32-14.933333 14.933333-17.066667 14.933333-44.8-4.266667-59.733334L384 512z" p-id="4240"></path></svg>
+        <a class="link" href="/blog/2020/01/02/php/php_extension_2/">
+          php扩展扩展开发之函数
+        </a>
+      </div>
+    
+    
+      <div class="next">
+        <a class="link" href="/blog/2020/01/01/linux/elf/">
+          linux 二进制工具
+        </a>
+        <svg t="1725418993065" class="sea-svg-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6832" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M731.733333 480l-384-341.333333c-17.066667-14.933333-44.8-14.933333-59.733333 4.266666-14.933333 17.066667-14.933333 44.8 4.266667 59.733334L640 512 292.266667 821.333333c-17.066667 14.933333-19.2 42.666667-4.266667 59.733334 8.533333 8.533333 19.2 14.933333 32 14.933333 10.666667 0 19.2-4.266667 27.733333-10.666667l384-341.333333c8.533333-8.533333 14.933333-19.2 14.933334-32s-4.266667-23.466667-14.933334-32z" p-id="6833"></path></svg>
+      </div>
+    
+  </div>
+
+  
+</article>
+
+
+
+<script defer>
+  document.addEventListener('DOMContentLoaded', function () {
+    const toggleIcon = document.querySelector('.sea-article-catalog-title .sea-svg-icon');
+    const tocContent = document.querySelector('.sea-article-catalog > .toc');
+    if (toggleIcon && tocContent) {
+      toggleIcon.addEventListener('click', function () {
+        tocContent.classList.toggle('sea-article-catalog-show');
+        toggleIcon.classList.toggle('sea-svg-icon-rotate');
+      });
+    }
+  });
+</script>
+  </main>
+  <footer id="sea-footer-container">
+  <div class="sea-footer-row">
+    <div class="sea-footer-menu-link">
+      
+    </div>
+  </div>
+  
+  
+  <div class="sea-footer-row">
+    <div class="sea-footer-copyright">
+      <span>©</span>
+      
+        2025
+      
+      <span>·</span>
+      Mr.Lee
+    </div>
+    <span class="split-line">|</span>
+    <div class="sea-footer-theme-by">
+      Theme by <a class="theme" href="https://github.com/hai-zou/hexo-theme-sea" target="_blank">Sea</a>
+    </div>
+  </div>
+</footer>
+
+  
+<script src="/blog/js/main.js" defer></script>
+
+
+<script src="/blog/js/theme.js" defer></script>
+
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
   <meta charset="utf-8">
-  <title>php扩展开发-扩展的生命周期(1) | bamboo三味书屋</title>
+  <title>php扩展开发-hello world | bamboo三味书屋</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="keywords" content="">
@@ -12,21 +12,21 @@
 
   
 
-  <meta name="description" content="一个最基本的扩展源码">
+  <meta name="description" content="PHP 扩展是提升应用性能、集成底层功能的重要方式。虽然大多数开发者通过 composer 安装现成扩展，但了解扩展开发能帮助你更深入理解 PHP 内核，甚至定制专属功能。本文将以 PHP 8.0 为例，从零开始开发一个简单的 hello world 扩展，带你掌握扩展开发的基本流程。 一、开发环境准备1. 系统要求   操作系统：Linux（本文以 Ubuntu 20.04 为例）或 macOS">
 <meta property="og:type" content="article">
-<meta property="og:title" content="php扩展开发-扩展的生命周期(1)">
+<meta property="og:title" content="php扩展开发-hello world">
 <meta property="og:url" content="https://bamboo8868.github.io/blog/2020/01/01/php/php_extension_1/index.html">
 <meta property="og:site_name" content="bamboo三味书屋">
-<meta property="og:description" content="一个最基本的扩展源码">
+<meta property="og:description" content="PHP 扩展是提升应用性能、集成底层功能的重要方式。虽然大多数开发者通过 composer 安装现成扩展，但了解扩展开发能帮助你更深入理解 PHP 内核，甚至定制专属功能。本文将以 PHP 8.0 为例，从零开始开发一个简单的 hello world 扩展，带你掌握扩展开发的基本流程。 一、开发环境准备1. 系统要求   操作系统：Linux（本文以 Ubuntu 20.04 为例）或 macOS">
 <meta property="og:locale">
 <meta property="article:published_time" content="2020-01-01T00:00:00.000Z">
-<meta property="article:modified_time" content="2025-08-14T00:52:36.057Z">
+<meta property="article:modified_time" content="2025-08-14T01:05:54.722Z">
 <meta property="article:author" content="Mr.Lee">
 <meta property="article:tag" content="php">
 <meta name="twitter:card" content="summary">
   <meta name="generator" content="Hexo 5.4.0">
   <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://bamboo8868.github.io/blog/2020/01/01/php/php_extension_1/"},"headline":"php扩展开发-扩展的生命周期(1)","description":"一个最基本的扩展源码","datePublished":"2020-01-01T00:00:00.000Z","dateModified":"2025-08-14T00:52:36.057Z","author":{"@type":"Person","name":"Mr.Lee"},"publisher":{"@type":"Organization","name":"bamboo三味书屋","logo":{"@type":"ImageObject","url":"https://bamboo8868.github.io/blog/favicon.ico"}}}
+{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://bamboo8868.github.io/blog/2020/01/01/php/php_extension_1/"},"headline":"php扩展开发-hello world","description":"PHP 扩展是提升应用性能、集成底层功能的重要方式。虽然大多数开发者通过 composer 安装现成扩展，但了解扩展开发能帮助你更深入理解 PHP 内核，甚至定制专属功能。本文将以 PHP 8.0 为例，从零开始开发一个简单的 hello world 扩展，带你掌握扩展开发的基本流程。 一、开发环境准备1. 系统要求 ","datePublished":"2020-01-01T00:00:00.000Z","dateModified":"2025-08-14T01:05:54.722Z","author":{"@type":"Person","name":"Mr.Lee"},"publisher":{"@type":"Organization","name":"bamboo三味书屋","logo":{"@type":"ImageObject","url":"https://bamboo8868.github.io/blog/favicon.ico"}}}
 </script>
 
   
@@ -95,7 +95,7 @@
   <main id="sea-main-wrapper" data-pagefind-body>
     <article class="sea-page-card-wrapper">
   <header class="sea-article-header">
-    <h1 class="sea-article-title">php扩展开发-扩展的生命周期(1)</h1>
+    <h1 class="sea-article-title">php扩展开发-hello world</h1>
     
       <div class="sea-post-meta sea-post-meta__center">
         <div class="sea-post-time">
@@ -120,7 +120,59 @@
   <div class="sea-doc">
     
     <div class="sea-article-content">
-      <p>一个最基本的扩展源码</p>
+      <p>PHP 扩展是提升应用性能、集成底层功能的重要方式。虽然大多数开发者通过 composer 安装现成扩展，但了解扩展开发能帮助你更深入理解 PHP 内核，甚至定制专属功能。本文将以 PHP 8.0 为例，从零开始开发一个简单的 <code>hello world</code> 扩展，带你掌握扩展开发的基本流程。</p>
+<h2 id="一、开发环境准备"><a href="#一、开发环境准备" class="headerlink" title="一、开发环境准备"></a>一、开发环境准备</h2><h3 id="1-系统要求"><a href="#1-系统要求" class="headerlink" title="1. 系统要求"></a>1. 系统要求</h3><ul>
+<li><p>  操作系统：Linux（本文以 Ubuntu 20.04 为例）或 macOS</p>
+</li>
+<li><p>  PHP 8.0 源码及开发工具：需要 PHP 源码用于生成扩展骨架，以及编译工具链</p>
+</li>
+</ul>
+<h3 id="2-安装依赖"><a href="#2-安装依赖" class="headerlink" title="2. 安装依赖"></a>2. 安装依赖</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">\# 安装编译工具</span><br><span class="line"></span><br><span class="line">sudo apt update</span><br><span class="line"></span><br><span class="line">sudo apt install -y build-essential gcc make autoconf libtool</span><br><span class="line"></span><br><span class="line">\# 安装 PHP 8.0 开发依赖</span><br><span class="line"></span><br><span class="line">sudo apt install -y php8.0 php8.0-dev php8.0-cli</span><br><span class="line"></span><br><span class="line">\# 验证 PHP 版本及开发文件</span><br><span class="line"></span><br><span class="line">php -v  # 输出 PHP 8.0.x</span><br><span class="line"></span><br><span class="line">php-config --version  # 确认 php-config 可用（扩展编译依赖）</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-获取-PHP-源码（可选但推荐）"><a href="#3-获取-PHP-源码（可选但推荐）" class="headerlink" title="3. 获取 PHP 源码（可选但推荐）"></a>3. 获取 PHP 源码（可选但推荐）</h3><p>PHP 扩展开发需要参考内核头文件，建议下载对应版本的源码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">\# 下载 PHP 8.0.30 源码（版本需与系统安装的 PHP 一致）</span><br><span class="line"></span><br><span class="line">wget https:&#x2F;&#x2F;www.php.net&#x2F;distributions&#x2F;php-8.0.30.tar.gz</span><br><span class="line"></span><br><span class="line">tar -zxvf php-8.0.30.tar.gz</span><br><span class="line"></span><br><span class="line">cd php-8.0.30&#x2F;ext  # 扩展开发工具在 ext 目录下</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、生成扩展骨架"><a href="#二、生成扩展骨架" class="headerlink" title="二、生成扩展骨架"></a>二、生成扩展骨架</h2><p>PHP 提供了 <code>ext_skel.php</code> 工具（位于 PHP 源码的 <code>ext/</code> 目录），可自动生成扩展的基础目录结构和配置文件。</p>
+<h3 id="1-创建扩展目录"><a href="#1-创建扩展目录" class="headerlink" title="1. 创建扩展目录"></a>1. 创建扩展目录</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">\# 进入 PHP 源码的 ext 目录（或任意工作目录）</span><br><span class="line"></span><br><span class="line">cd php-8.0.30&#x2F;ext</span><br><span class="line"></span><br><span class="line">\# 生成扩展骨架，扩展名为 &quot;hello&quot;</span><br><span class="line"></span><br><span class="line">.&#x2F;ext\_skel.php --ext hello</span><br></pre></td></tr></table></figure>
+
+<p>执行后会生成 <code>hello/</code> 目录，结构如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">hello&#x2F;</span><br><span class="line"></span><br><span class="line">├── config.m4       # 编译配置文件（用于 .&#x2F;configure）</span><br><span class="line"></span><br><span class="line">├── CREDITS         # 扩展作者信息</span><br><span class="line"></span><br><span class="line">├── hello.c         # 核心代码文件</span><br><span class="line"></span><br><span class="line">├── hello.php       # 扩展测试脚本</span><br><span class="line"></span><br><span class="line">├── php\_hello.h     # 头文件</span><br><span class="line"></span><br><span class="line">└── README          # 说明文档</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、编写扩展代码"><a href="#三、编写扩展代码" class="headerlink" title="三、编写扩展代码"></a>三、编写扩展代码</h2><h3 id="1-修改配置文件-config-m4"><a href="#1-修改配置文件-config-m4" class="headerlink" title="1. 修改配置文件 config.m4"></a>1. 修改配置文件 <code>config.m4</code></h3><p><code>config.m4</code> 用于告诉 <code>configure</code> 脚本如何编译扩展。打开文件，删除注释符 <code>dnl</code> 启用以下配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">\# 启用动态加载扩展（无需重新编译 PHP 内核）</span><br><span class="line"></span><br><span class="line">PHP\_ARG\_ENABLE(hello, whether to enable hello support,</span><br><span class="line"></span><br><span class="line">\[  --enable-hello           Enable hello support])</span><br><span class="line"></span><br><span class="line">if test &quot;\$PHP\_HELLO&quot; &#x3D; &quot;yes&quot;; then</span><br><span class="line"></span><br><span class="line">&amp;#x20; AC\_DEFINE(HAVE\_HELLO, 1, \[Whether you have hello])</span><br><span class="line"></span><br><span class="line">&amp;#x20; PHP\_NEW\_EXTENSION(hello, hello.c, \$ext\_shared)</span><br><span class="line"></span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-实现-hello-world-函数"><a href="#2-实现-hello-world-函数" class="headerlink" title="2. 实现 hello_world() 函数"></a>2. 实现 <code>hello_world()</code> 函数</h3><p>打开核心代码文件 <code>hello.c</code>，在 <code>PHP_FUNCTION(confirm_hello_compiled)</code> 函数下方添加自定义函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 声明函数（需在 php\_hello.h 中声明，或直接写在 hello.c 顶部）</span><br><span class="line"></span><br><span class="line">PHP\_FUNCTION(hello\_world);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 实现函数</span><br><span class="line"></span><br><span class="line">PHP\_FUNCTION(hello\_world) &#123;</span><br><span class="line"></span><br><span class="line">&amp;#x20;   &#x2F;&#x2F; 输出 &quot;Hello World from PHP 8.0 Extension!&quot;</span><br><span class="line"></span><br><span class="line">&amp;#x20;   zend\_string \*str &#x3D; zend\_string\_init(&quot;Hello World from PHP 8.0 Extension!&quot;, 0, 0);</span><br><span class="line"></span><br><span class="line">&amp;#x20;   RETURN\_STR(str);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-注册函数"><a href="#3-注册函数" class="headerlink" title="3. 注册函数"></a>3. 注册函数</h3><p>在 <code>hello.c</code> 中找到 <code>zend_function_entry hello_functions[]</code> 数组，添加函数注册信息（让 PHP 识别 <code>hello_world()</code>）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">const zend\_function\_entry hello\_functions\[] &#x3D; &#123;</span><br><span class="line"></span><br><span class="line">&amp;#x20;   PHP\_FE(confirm\_hello\_compiled,  NULL)  &#x2F;\* 自动生成的测试函数 \*&#x2F;</span><br><span class="line"></span><br><span class="line">&amp;#x20;   PHP\_FE(hello\_world,             NULL)  &#x2F;\* 新增：注册 hello\_world 函数 \*&#x2F;</span><br><span class="line"></span><br><span class="line">&amp;#x20;   PHP\_FE\_END  &#x2F;\* 结束标记 \*&#x2F;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-头文件声明（可选）"><a href="#4-头文件声明（可选）" class="headerlink" title="4. 头文件声明（可选）"></a>4. 头文件声明（可选）</h3><p>为规范代码，可在 <code>php_hello.h</code> 中添加函数声明：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">\#ifndef PHP\_HELLO\_H</span><br><span class="line"></span><br><span class="line">\#define PHP\_HELLO\_H</span><br><span class="line"></span><br><span class="line">extern zend\_module\_entry hello\_module\_entry;</span><br><span class="line"></span><br><span class="line">\#define phpext\_hello\_ptr \&amp;hello\_module\_entry</span><br><span class="line"></span><br><span class="line">PHP\_FUNCTION(confirm\_hello\_compiled);</span><br><span class="line"></span><br><span class="line">PHP\_FUNCTION(hello\_world);  &#x2F;\* 新增：声明 hello\_world 函数 \*&#x2F;</span><br><span class="line"></span><br><span class="line">\#endif  &#x2F;\* PHP\_HELLO\_H \*&#x2F;</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、编译与安装扩展"><a href="#四、编译与安装扩展" class="headerlink" title="四、编译与安装扩展"></a>四、编译与安装扩展</h2><h3 id="1-编译扩展"><a href="#1-编译扩展" class="headerlink" title="1. 编译扩展"></a>1. 编译扩展</h3><p>在 <code>hello/</code> 目录下执行以下命令，生成 <code>.so</code> 扩展文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">\# 生成 configure 脚本</span><br><span class="line"></span><br><span class="line">phpize</span><br><span class="line"></span><br><span class="line">\# 配置编译选项（--enable-hello 对应 config.m4 中的设置）</span><br><span class="line"></span><br><span class="line">.&#x2F;configure --enable-hello</span><br><span class="line"></span><br><span class="line">\# 编译</span><br><span class="line"></span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<p>编译成功后，会在 <code>modules/</code> 目录下生成 <code>hello.so</code>（扩展二进制文件）。</p>
+<h3 id="2-安装扩展"><a href="#2-安装扩展" class="headerlink" title="2. 安装扩展"></a>2. 安装扩展</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">\# 安装扩展到 PHP 扩展目录（需 root 权限）</span><br><span class="line"></span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+
+<p>执行后会显示扩展安装路径，类似：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Installing shared extensions:     &#x2F;usr&#x2F;lib&#x2F;php&#x2F;20200930&#x2F;</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、配置-PHP-加载扩展"><a href="#五、配置-PHP-加载扩展" class="headerlink" title="五、配置 PHP 加载扩展"></a>五、配置 PHP 加载扩展</h2><h3 id="1-添加扩展配置"><a href="#1-添加扩展配置" class="headerlink" title="1. 添加扩展配置"></a>1. 添加扩展配置</h3><p>创建扩展配置文件（或修改 <code>php.ini</code>）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">\# 创建配置文件</span><br><span class="line"></span><br><span class="line">sudo touch &#x2F;etc&#x2F;php&#x2F;8.0&#x2F;cli&#x2F;conf.d&#x2F;20-hello.ini</span><br><span class="line"></span><br><span class="line">\# 写入配置（扩展路径为上一步的安装路径）</span><br><span class="line"></span><br><span class="line">echo &quot;extension&#x3D;hello.so&quot; | sudo tee &#x2F;etc&#x2F;php&#x2F;8.0&#x2F;cli&#x2F;conf.d&#x2F;20-hello.ini</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-验证扩展加载"><a href="#2-验证扩展加载" class="headerlink" title="2. 验证扩展加载"></a>2. 验证扩展加载</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php -m | grep hello  # 输出 &quot;hello&quot; 表示加载成功</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、测试扩展功能"><a href="#六、测试扩展功能" class="headerlink" title="六、测试扩展功能"></a>六、测试扩展功能</h2><p>创建测试脚本 <code>test_hello.php</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">\&lt;?php</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 调用扩展中的函数</span><br><span class="line"></span><br><span class="line">echo hello\_world() . &quot;\n&quot;;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 调用自动生成的测试函数（验证扩展编译成功）</span><br><span class="line"></span><br><span class="line">echo confirm\_hello\_compiled(&quot;hello&quot;) . &quot;\n&quot;;</span><br><span class="line"></span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<p>执行脚本：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php test\_hello.php</span><br></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<p>```<br>Hello World from PHP 8.0 Extension!</p>
+<p>Congratulations! You have successfully modified ext/hello/config.m4. Module hello is now compiled into PHP.</p>
 
     </div>
   </div>
