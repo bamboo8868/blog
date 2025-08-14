@@ -1,0 +1,5 @@
+menu:
+  - name: 分类
+    url: /categories/
+  - name: 标签
+    url: /tags/
