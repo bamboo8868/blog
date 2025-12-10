@@ -8,7 +8,5 @@ tags:
 ---
 
 ```````
-
-```
 journalctl -u nginx -f -l
-```
+```````
