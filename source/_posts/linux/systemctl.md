@@ -7,6 +7,6 @@ tags:
  - linux
 ---
 
-```````
+```````bash
 journalctl -u nginx -f -l
 ```````
